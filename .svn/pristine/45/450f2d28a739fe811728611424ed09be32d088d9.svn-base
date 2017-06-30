@@ -1,0 +1,17 @@
+//任课老师操作
+void teaCoursesSelect(){
+    char *menuArr[]={
+                    "教师之家",
+                    "安排课程",
+                    "查询任课老师",
+                    "查询同学信息",
+                    "当前位置：首页"
+                };
+    int loop=1;
+    while( loop ){
+        switch( showMenu(menuArr, 5) ){
+
+            default: loop=0;
+        }
+    }
+}

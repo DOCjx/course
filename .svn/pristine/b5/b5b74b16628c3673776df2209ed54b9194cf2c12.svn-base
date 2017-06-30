@@ -1,0 +1,996 @@
+//教务处操作
+
+/*
+	管理员信息函数
+*/
+//功能,对用户的增加,删除,修改
+//对课程的安排(增删改查),开课事件的安排
+void addUser(userLink start);//添加用户
+void deleteUser(userLink start);//删除用户
+void replaceUserInfo(userLink start);//修改用户信息
+void replaceInfo(userLink preInfo, userLink newInfo);//将原来用户信息用新用户信息替代
+void copyLinkNode(userLink newInfo, userLink preInfo);//将之前节点拷贝到新节点上
+void userManager();//增删改查用户，TODO:发消息
+void coursesManager();//课程管理
+void sysManager();//系统设置
+void setPageLength(int* defaultLength);//设置用户显示页面长度
+void showAlluser();//显示全部用户
+void importUser();//导入用户调用
+void addUserByFile(userLink start,char* filename);//通过文件名批量添加用户
+void addUserFunc();//添加用户调用函数
+void searchManage(int i);//查找显示菜单
+void searchByIdFunc();//按id查询调用
+void searchUserFunc();
+void searchUserByNameFunc(int ii);//按名字精确查询调用
+void searchUserByNameFunc2(int ii);//按名字模糊查询调用
+void deleteUserFunc();//删除用户调用函数
+void replaceInfoFunc();//修改用户信息调用函数
+void deleteOneUserById(int d);//通过id删除一个用户
+void deleteMultiAmountUser(int startId,int endId);
+void deleteMultiAmountUserByLength(int startId,int length);
+void deleteMultiAmountUserManage();
+void deleteMultiAmountUserFunc(int flag);
+
+
+void deleteMultiAmountUserFunc(int flag){
+    system("cls");
+    clearInputBufer();
+    int startId;
+    char a;
+    quickSortById(globalHead);
+    if(flag == 1){//按起始id和截至id显示用户
+            int endId;
+            while(1){
+                printf("请输入起始id:");
+                scanf("%d",&startId);
+                printf("请输入截至id:");
+                scanf("%d",&endId);
+                deleteMultiAmountUser(startId,endId);
+                clearInputBufer();
+                printf("输入(Y|y)继续修改,否则按任意键返回\n");
+                a = getchar();
+                if(a != 'Y' && a!='y'){
+                    tip("正在返回");
+                    break;
+                }
+            }
+
+    }
+    else if(flag == 2){//按起始id和长度显示用户
+        while(1){
+                int length;
+                printf("请输入起始id:");
+                scanf("%d",&startId);
+                printf("请输入长度:");
+                scanf("%d",&length);
+                deleteMultiAmountUserByLength(startId,length);
+                clearInputBufer();
+                 //print(globalHead);
+                printf("输入(Y|y)继续修改,否则按任意键返回\n");
+                a = getchar();
+                if(a != 'Y' && a!='y'){
+                    tip("正在返回");
+                    break;
+                }
+            }
+    }
+    else{
+        printf("标记flag输入错误\n");
+    }
+}
+
+void deleteMultiAmountUserManage(){
+    char *menuArr[]={
+                    "删除大量用户",
+                    "通过起始id和截至id删除",
+                    "通过起始id和长度删除",
+                    "返回"
+                };
+    int loop=1;
+    while( loop ){
+        switch( showMenu(menuArr, 4) ){
+            case 1: deleteMultiAmountUserFunc(1); break;
+            case 2: deleteMultiAmountUserFunc(2); break;
+            case -1: isLogout = 1; break;
+            default: loop=0;
+        }
+        //如果全局为注销则退出当前菜单直到首页
+        if( isLogout ) loop=0;
+    }
+}
+
+void deleteMultiAmountUserByLength(int startId,int length){
+    int i=0;
+    if(startId>0){
+        while(i<length){
+            deleteOneUserById(startId+i);
+            i++;
+        }
+    }
+    else
+        printf("id导入错误,请检查id号是否大于0\n");
+
+}
+
+void deleteMultiAmountUser(int startId,int endId){
+    int i;
+    if(startId<endId&&startId>0){
+        for(i = startId;i<=endId;i++)
+            deleteOneUserById(i);
+    }
+    else
+        printf("id导入错误,请检查id号是否大于0或截至id是否大于起始id\n");
+
+}
+
+
+void deleteOneUserById(int d){
+	userLink user;
+	userLink pre = globalHead;
+	user = searchById(globalHead, pre, d);
+	if (!user)
+		printf("id为%d的用户不存在\n",d);
+	else {
+        int i;
+        userLink head;
+        userLink p,pp;
+        head = (userLink)malloc(sizeof(userList));
+        head->info = NULL;
+        head->next = NULL;
+        pre->next = user->next;
+        //找到user对应的文件
+        i = getCorrectInsertIndex(user->info->name);
+        readUserData(fileArr[i],head);
+        pp = head;
+        p = head->next;
+        while(p&&strcmp(p->info->name,user->info->name)!=0){
+                pp = p;
+                p = p->next;
+        }
+        pp->next = p->next;
+        free(p);
+        writeInfoToFile(fileArr[i],head->next);
+        freeUser(head);
+        free(user);
+        printf("删除成功\n");
+	}
+}
+
+void replaceInfoFunc(){
+    system("cls");
+    quickSortById(globalHead);
+    char a;
+    while(1){
+        replaceUserInfo(globalHead);
+        printf("输入(Y|y)继续修改,否则按任意键返回\n");
+        a = getchar();
+        //printf("%c",a);
+        if(a != 'Y'&&a != 'y'){
+            tip("正在返回");
+            break;
+        }
+        clearInputBufer();
+    }
+
+}
+
+void deleteUserFunc(){
+    system("cls");
+    quickSortById(globalHead);
+    char a;
+    while(1){
+        deleteUser(globalHead);
+        printf("输入(Y|y)继续删除,否则按任意键返回\n");
+        a = getchar();
+        //printf("%c",a);
+        if(a != 'Y'&&a != 'y'){
+            tip("正在返回");
+            break;
+        }
+        clearInputBufer();
+    }
+
+}
+
+void searchByIdFunc(){//id要已经有序,若无序则在其中按id快排
+    system("cls");
+    userLink pre = NULL;
+    userLink p;
+    int id;
+    clearInputBufer();
+    quickSortById(globalHead);
+    printf("请输入要查找的id号:");
+    while(scanf("%d",&id)!=EOF){
+        char a;
+        if((p = searchById(globalHead,pre,id))){
+            printf("学号%d ", p->info->id);
+            printf("角色号%d ", p->info->roleId);
+            printf("姓名%s ", p->info->name);
+            //printf("密码%s ", user->info->passwd);
+            printf("学院%s ", p->info->institute);
+            printf("电话号码%s ", p->info->phoneNum);
+            printf("简介%s \n", p->info->synopsis);
+        }
+        else
+            printf("id:%d不存在",id);
+        printf("是否要继续查询(Y)或按任意键返回\n");
+        clearInputBufer();
+        a = getchar();
+        if( a == 'Y'||a == 'y')
+            printf("请输入要查找的id号:");
+        else{
+            tip("正在返回");
+            break;
+        }
+
+    }
+
+}
+
+void searchUserByNameFunc(int ii){
+    system("cls");
+    char name[20];
+    int i;
+    userLink head,p;
+    head = (userLink)malloc(sizeof(userList));
+    head->next = NULL;
+    head->info = NULL;
+    printf("请输入要查找的名字:");
+    clearInputBufer();
+    while(gets(name)!=EOF){
+        int counter = 0;
+        char a;
+        i = getCorrectInsertIndex(name);//找到名字对应的文件
+        readUserData(fileArr[i],head);
+        //printf("name = %s,i = %d",name,i);
+        p = head->next;
+        //print(head);
+        while(p&&strcmp(p->info->name,name)>=0){
+            if(strcmp(p->info->name,name)==0){
+                if(ii==3){
+                    printf("姓名%s ", p->info->name);
+                    printf("学号%d ", p->info->id);
+                    printf("角色号%d ", p->info->roleId);
+                    //printf("密码%s ", user->info->passwd);
+                    printf("学院%s ", p->info->institute);
+                    printf("电话号码%s ", p->info->phoneNum);
+                    printf("简介%s \n", p->info->synopsis);
+                    counter++;
+                }
+                else{
+                    if(p->info->roleId == (ii-1)){
+                        printf("姓名%s ", p->info->name);
+                        printf("学号%d ", p->info->id);
+                        printf("角色号%d ", p->info->roleId);
+                        //printf("密码%s ", user->info->passwd);
+                        printf("学院%s ", p->info->institute);
+                        printf("电话号码%s ", p->info->phoneNum);
+                        printf("简介%s \n", p->info->synopsis);
+                        counter++;
+                    }
+                }
+            }
+            p = p->next;
+        }
+        if(counter == 0)
+            printf("未找到%s",name);
+        printf("是否要继续查询:(Y|y),按否则按任意键退出\n");
+        a = getchar();
+        if(a != 'Y'&&a != 'y'){
+            tip("正在返回");
+            break;
+        }
+        printf("请输入要查找的名字:");
+
+    }
+
+
+}
+
+void searchUserByNameFunc2(int ii){
+    system("cls");
+    char name[20];
+    userLink head;
+    printf("请输入要查找的关键字:");
+    clearInputBufer();
+    while(gets(name)!=EOF){
+        char a;
+        int counter = 0;
+        userLink p;
+         head = searchByStr(globalHead,name);
+         p = head->next;
+         while(p){
+            if(ii==3){
+                    printf("姓名%s ", p->info->name);
+                    printf("学号%d ", p->info->id);
+                    printf("角色号%d ", p->info->roleId);
+                    //printf("密码%s ", user->info->passwd);
+                    printf("学院%s ", p->info->institute);
+                    printf("电话号码%s ", p->info->phoneNum);
+                    printf("简介%s \n", p->info->synopsis);
+                    counter++;
+                }
+                else{
+                    if(p->info->roleId == (ii-1)){
+                        printf("姓名%s ", p->info->name);
+                        printf("学号%d ", p->info->id);
+                        printf("角色号%d ", p->info->roleId);
+                        //printf("密码%s ", user->info->passwd);
+                        printf("学院%s ", p->info->institute);
+                        printf("电话号码%s ", p->info->phoneNum);
+                        printf("简介%s \n", p->info->synopsis);
+                        counter++;
+                    }
+                }
+                p = p->next;
+         }
+
+         if(counter == 0)
+            printf("未找到关键字%s对应的用户\n",name);
+        printf("是否要继续查询:(Y|y),按否则按任意键退出\n");
+        a = getchar();
+        if(a != 'Y'&&a != 'y'){
+            tip("正在返回");
+            break;
+        }
+        printf("请输入要查找的关键字:");
+    }
+}
+
+void searchManage(int i){
+    char *menuArr[]={
+                    "查找用户",
+                    "按id查找",
+                    "按姓名查找",
+                    "按姓名模糊查询",
+                    "返回"
+                };
+    int loop=1;
+    while( loop ){
+        switch( showMenu(menuArr, 5) ){
+            case 1: searchByIdFunc(); break;
+            case 2: searchUserByNameFunc( i); break;
+            case 3: searchUserByNameFunc2( i); break;
+            case -1: isLogout = 1; break;
+            default: loop=0;
+        }
+        //如果全局为注销则退出当前菜单直到首页
+        if( isLogout ) loop=0;
+    }
+}
+
+void affairsCoursesSelect(){
+    char *menuArr[]={
+                    "教务处",
+                    "课程管理",//增删改查
+                    "用户管理",
+                    "系统设置",
+                    "教师之家",
+                    "当前位置：首页"
+                };
+    int loop=1;
+    while( loop ){
+        switch( showMenu(menuArr, 6) ){
+            case 1: coursesManager(); break;
+            case 2: userManager(); break;
+            case 3: sysManager(); break;
+            case 4: teaCoursesSelect(); break;
+            case -1: isLogout = 1; break;
+            default: loop=0;
+        }
+        //如果全局为注销则退出当前菜单直到首页
+        if( isLogout ) loop=0;
+    }
+}
+void nowsystemStatus(){
+    int Status;
+    printf("当前的系统状态是：%d\n",systemStatus);
+    printf("请输入需要修改成的系统状态（0：为正常状态；1：为选课状态；）：\n");
+    scanf("%d",&Status);
+    systemStatus=Status;
+    if(systemStatus==0){
+        tip("当前系统状态已经修改为正常状态！");
+    }else if(systemStatus==1){
+        tip("当前系统状态已经修改成选课状态！");
+    }else{
+        tip("输入的系统状态不正确！");
+    }
+
+}
+void changechance(){
+    printf("当前用户密码可尝试次数为：%d\n",loginTimes);
+    printf("请输入需要修改成的次数：");
+    int newloginTimes;
+    scanf("%d",&newloginTimes);
+    loginTimes=newloginTimes;
+    printf("当前用户密码可尝试次数已经被修改成：%d\n",loginTimes);
+    tip(">>>>");
+
+
+}
+void changekeylength(){
+    printf("当前用户密码长度为：%d\n",passLength);
+    printf("请输入需要修改成的长度：");
+    int newpassLength;
+    scanf("%d",&newpassLength);
+    passLength=newpassLength;
+    printf("当前用户密码长度已经被修改成：%d\n",passLength);
+    tip(">>>>");
+
+}
+void sysManager(){
+    char *menuArr[]={
+                    "系统设置",
+                    "当前系统状态",//正常或者选课状态
+                    "用户可尝试输入密码次数",
+                    "用户密码长度",
+                    "修改超级管理员用户名和密码",
+                    "当前位置：首页->教务处->系统设置"
+                };
+    int loop=1;
+    while( loop ){
+        switch( showMenu(menuArr, 6) ){
+            case 1: nowsystemStatus();break;
+            case 2: changechance();break;
+            case 3: changekeylength();break;            case -1: isLogout = 1; break;
+            default: loop=0;
+        }
+        //如果全局为注销则退出当前菜单直到首页
+        if( isLogout ) loop=0;
+    }
+}
+void printCourse(instituteList head){
+    while(head){
+        printf("%d:%s\n",head->instituteId, head->instituteName);
+        head = head->next;
+    }
+}
+void freeCourse(instituteList head){
+    instituteList s;
+    s = head->next;
+    while( s ) {
+        head->next = s->next;
+        free(s);
+        s = head->next;
+    }
+    free(head);
+}
+
+void readCourse(int type){
+    char path[40];
+    FILE* fp;
+    //读取用户的数据
+    do{
+        //清楚上次菜单输入时缓冲区里面的回车
+        clearInputBufer();
+        showTitle("请输入需要导入文件的完整路径（默认为软件根目录data.txt）：\n\t\t\t如：C:\\Users\\稻壳er\\Desktop\\data.txt\t\t0  退出\n",25);
+        printf("\t\t\t路径：[                                              ]\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
+        gets(path);
+        if( path[0]=='0' ) return;
+        if( !path[0] ) {
+            //用户没有输入路径时
+            fp = fopen("data.txt", "r");
+            if( fp==NULL ) tip("请检查软件根目录data.txt是否存在！");
+        }else{
+            //用户输入了路径时
+            fp = fopen(path, "r");
+            if( fp==NULL ) {
+                printf("请检查路径：");
+                tip(path);
+            }
+        }
+	}while(  fp==NULL );
+	if( type!=5 ){
+        instituteList head,s;
+        head = s = (instituteList)malloc(sizeof(instituteNode));
+        head->next = NULL;
+        while (!feof(fp)) {
+            s = (instituteList)malloc(sizeof(instituteNode));
+            fscanf(fp, "%d", &s->instituteId);
+            if( s->instituteId==-1 ) {
+                free(s);
+                break;
+            }
+            fscanf(fp, "%s", s->instituteName);
+            s->next = head->next;
+            head->next = s;
+        }
+        //printCourse(head->next);
+        freeCourse(head);
+	}else{
+
+	}
+	fclose(fp);
+}
+void coursesManager(){
+    char *menuArr[]={
+                    "课程管理",
+                    "导入学院",
+                    "导入专业",
+                    "导入课程",
+                    "排课",//系统状态是选课状态是才能排课，排时间排容量排老师
+                    "导入培养方案",//分学院分专业导入培养方案
+                    "当前位置：首页->教务处"
+                };
+    int loop=1;
+    while( loop ){
+        int c;
+        switch( c = showMenu(menuArr, 7) ){
+            case 1: case 2: case 3: case 5: readCourse(c);break;
+            case -1: isLogout = 1; break;
+            default: loop=0;
+        }
+        //如果全局为注销则退出当前菜单直到首页
+        if( isLogout ) loop=0;
+    }
+}
+void userManager(){
+    char *menuArr[]={
+                    "用户管理",
+                    "查看所有用户",
+                    "查找用户",
+                    "导入用户",
+                    "添加用户",
+                    "修改用户信息",
+                    "删除用户",
+                    "批量删除",
+                    "当前位置：首页->教务处"
+                };
+    int loop=1;
+    while( loop ){
+        switch( showMenu(menuArr, 9) ){
+            case -1: isLogout = 1; break;
+            case 1:  showAlluser();break;
+            case 2: searchManage(3);break;
+            case 3: importUser();break;
+            case 4: addUserFunc();break;
+            case 5: replaceInfoFunc(); break;
+            case 6: deleteUserFunc(); break;
+            case 7: deleteMultiAmountUserManage();break;
+            default: loop=0;
+        }
+        //如果全局为注销则退出当前菜单直到首页
+        if( isLogout ) loop=0;
+    }
+}
+
+void importUser(){
+    char fileName[50];
+    system("cls");
+    clearInputBufer();
+    printf("请输入要导入的用户信息文件:(完整路径)\n");
+    gets(fileName);
+    addUserByFile(globalHead,fileName);
+    printf("输入任意键返回\n");
+    system("pause");
+
+}
+void addUserFunc(){
+    system("cls");
+    clearInputBufer();
+    addUser(globalHead);
+}
+
+void setPageLength(int* defaultLength){//设置用户显示页面长度
+    int i;
+    system("cls");
+    printf("请输入页面显示信息长度:");
+    while(scanf("%d",&i)!=EOF){
+        clearInputBufer();
+        if(i<=0)
+            printf("请输入大于0的整数\n");
+        else{
+            *defaultLength = i;
+            printf("设置的长度为:%d\n",i);
+            tip("设置已更改");
+            break;
+        }
+    }
+
+}
+
+void showAlluser(){//显示全部用户
+    char *menuArr[]={
+                    "显示设置",
+                    "页表长度设置",
+                    "未修改则按默认设置显示",
+                    "返回",
+                };
+    int loop=1;
+    int s = 1;
+    int defaultLength = 5;
+    while( loop ){
+            switch( showMenu(menuArr, 4) ){
+            case -1: isLogout = 1; break;
+            case 1:
+                 setPageLength(&defaultLength);
+                break;
+            case 2:
+                infoListControl(globalHead,s,defaultLength);
+                break;
+            default: loop=0;
+            }
+        if( isLogout ) loop=0;
+    }
+
+}
+
+
+
+//批量添加用户
+void addUserByFile(userLink start,char* filename){
+    userLink head,usInfo,p,q;
+    userLink uHead,pre;
+    q = pre = NULL;
+    int i;
+    head = (userLink)malloc(sizeof(userList));
+    head->info =  NULL;
+    head->next = NULL;
+    readUserData(filename,head);
+    usInfo = head->next;
+    while(usInfo){
+        p = usInfo->next;
+        if(!(q = searchById(start, pre, usInfo->info->id))){//若id号不存在,直接添加,否则覆盖信息
+            i = getCorrectInsertIndex(usInfo->info->name);
+            usInfo->info->firstChild = NULL;
+            usInfo->next = NULL;
+            usInfo->flag = 0;
+            //创建用户信息链
+            readUserData(fileArr[i], uHead);
+            //插入信息
+            insertToUserListByName(uHead, usInfo);
+            //将信息插入到读出的按学号排序的用户信息链中
+            insertToUserLinkById(start, usInfo);
+            //写入信息
+            writeInfoToFile(fileArr[i], uHead->next);
+            freeUser(uHead);
+        }
+        else{//覆盖信息
+            usInfo->next = q->next;
+            pre->next = usInfo;
+            replaceInfo(q,usInfo);
+        }
+        usInfo = p;
+    }
+
+}
+
+//添加单个用户
+void addUser(userLink start) {//传入学号信息排好序的链,用于验证学号是否重复
+	int i;
+	int iid;
+    userLink pre = NULL;
+    printf("请按如下提示添加用户\n");
+	printf("学号:");
+	while (scanf("%d", &iid) != EOF) {
+		clearInputBufer();
+		if (!searchById(start, pre, iid)) {
+            userLink head = (userLink)malloc(sizeof(userList));
+            head->info = NULL;
+            head->next = NULL;
+            userLink usInfo = (userLink)malloc(sizeof(userList));
+            userNode* info = (userNode*)malloc(sizeof(userNode));
+            usInfo->info = info;
+            usInfo->info->id = iid;
+			//判断学号是否重复
+			printf("角色号:");
+			scanf("%d", &usInfo->info->roleId);
+			getchar();
+			printf("姓名:");
+			gets(usInfo->info->name);
+			printf("密码:");
+			gets(usInfo->info->passwd);
+			printf("学院:");
+			gets(usInfo->info->institute);
+			printf("电话号码:");
+			gets(usInfo->info->phoneNum);
+			printf("简介:");
+			gets(usInfo->info->synopsis);
+			usInfo->flag = 0;
+			usInfo->flag1 = 0;
+			//找到姓名对应的文件
+			i = getCorrectInsertIndex(usInfo->info->name);
+			usInfo->info->firstChild = NULL;
+			usInfo->next = NULL;
+			usInfo->flag = 0;
+			//创建用户信息链
+			readUserData(fileArr[i], head);
+			//print(head);
+			//printf("i = %d\n",i);
+			//插入信息
+			insertToUserListByName(head, usInfo);
+			//写入信息
+			writeInfoToFile(fileArr[i], head->next);
+
+			//将信息插入到读出的按学号排序的用户信息链中
+			insertToUserLinkById(start, usInfo);
+
+
+			freeUser(head);
+            printf("添加成功\n");
+			tip("正在返回");
+			break;
+		}
+		else {
+			printf("该学号已存在,请重新输入\n");
+		}
+	}
+
+}
+
+
+//删除用户
+void deleteUser(userLink start) {
+	//在用户链中查找是否有对应的学号或名字
+	//若有则删除用户
+	//若输入的是名字,则找到其对应的学号，再进行删除
+	int d;
+	userLink user;
+	userLink pre = start;
+	printf("请输入要删除的学生学号:\n");
+	scanf("%d", &d);
+	user = searchById(start, pre, d);
+	clearInputBufer();
+	if (!user)
+		printf("用户不存在\n");
+	else {
+		//显示用户信息
+		printf("学号%d ", user->info->id);
+		printf("角色号%d ", user->info->roleId);
+		printf("姓名%s ", user->info->name);
+		printf("密码%s ", user->info->passwd);
+		printf("学院%s ", user->info->institute);
+		printf("电话号码%s ", user->info->phoneNum);
+		printf("简介%s \n", user->info->synopsis);
+		printf("是否要删除该记录?(Y,N)\n");
+		char c;
+		userLink head = (userLink)malloc(sizeof(userList));
+		head->info = NULL;
+		head->next = NULL;
+		while ((c = getchar()) != EOF) {
+			if (c == 'Y' || c == 'y') {
+				//删除记录
+				int i;
+				userLink p,pp;
+
+                pre->next = user->next;
+
+				//找到user对应的文件
+				i = getCorrectInsertIndex(user->info->name);
+				readUserData(fileArr[i],head);
+				pp = head;
+				p = head->next;
+				while(p&&strcmp(p->info->name,user->info->name)!=0){
+                    pp = p;
+                    p = p->next;
+				}
+				if(p)
+                    pp->next = p->next;
+                free(p);
+                writeInfoToFile(fileArr[i],head->next);
+                freeUser(head);
+				free(user);
+				printf("删除成功\n");
+				break;
+			}
+			else if (c == 'N' || c == 'n') {
+				printf("已取消删除\n");
+			}
+			else {
+				printf("输入错误,请重新输入\n");
+				printf("是否要删除该记录?(Y,N)\n");
+			}
+		}
+		clearInputBufer();
+	}
+}
+
+//修改用户信息
+void copyLinkNode(userLink newInfo, userLink preInfo) {//将之前节点拷贝到新节点上
+	newInfo->flag = preInfo->flag;
+	newInfo->flag1 = preInfo->flag1;
+	newInfo->next = NULL;
+	newInfo->info->firstChild = preInfo->info->firstChild;
+	newInfo->info->id = preInfo->info->id;
+	newInfo->info->roleId = preInfo->info->roleId;
+	strcpy(newInfo->info->institute, preInfo->info->institute);
+	strcpy(newInfo->info->name, preInfo->info->name);
+	strcpy(newInfo->info->passwd, preInfo->info->passwd);
+	strcpy(newInfo->info->phoneNum, preInfo->info->phoneNum);
+	strcpy(newInfo->info->synopsis, preInfo->info->synopsis);
+
+}
+
+void replaceUserInfo(userLink start) {
+	//先查找用户
+	//按姓名,关键字,或者学号
+	//通过关键字找到对应的id号,再对其对应的信息进行修改
+	int id;
+	userLink user;
+	userLink pre;
+	pre = start;
+	printf("请输入所要进行修改的信息对应的id号:\n");
+	scanf("%d", &id);
+	//查找id是否存在,并将信息显示
+	user = searchById(start, pre, id);
+	clearInputBufer();
+	if (user) {
+		userLink preLink = (userLink)malloc(sizeof(userList));
+		preLink->info = (userNode*)malloc(sizeof(userNode));
+		copyLinkNode(preLink, user);
+		printf("学号%d ", user->info->id);
+		printf("角色号%d ", user->info->roleId);
+		printf("姓名%s ", user->info->name);
+		printf("密码%s ", user->info->passwd);
+		printf("学院%s ", user->info->institute);
+		printf("电话号码%s ", user->info->phoneNum);
+		printf("简介%s \n", user->info->synopsis);
+		//对信息进行替换
+		printf("请输入要进行修改的信息的序号:\n");
+		printf("学号(0),角色号(1),姓名(2),密码(3),学院(4),电话号码(5),简介(6),-1表示退出\n");
+		int type;
+		while (scanf("%d", &type) != EOF) {
+			getchar();
+			if (type == -1)
+				break;
+			switch (type) {
+				case 0: {
+					int iid;
+					printf("请输入要修改的信息:\n");
+					printf("学号:");//判断学号是否存在
+					scanf("%d", &iid);
+					if (!searchById(start, NULL, iid)) {
+						//取下当前节点插入到用户链中
+						pre->next = user->next;
+						user->info->id = iid;
+						insertToUserLinkById(start,user);
+						printf("修改成功\n");
+					}
+					else
+						printf("学号已存在,无法修改\n");
+					break;
+                }
+				case 1: {
+					int roleId;
+					printf("请输入要修改的信息:\n");
+					printf("角色号:");//判断学号是否存在
+					while (scanf("%d", &roleId) != EOF) {
+						getchar();
+						printf("0 学生 1 教职工 2管理员\n");
+						if (roleId >= 0 && roleId < 3) {
+							user->info->roleId = roleId;
+							printf("修改成功\n");
+							break;
+						}
+						else {
+							printf("角色号要在0~2之间\n");
+							printf("0 学生 1 教职工 2管理员\n");
+							printf("角色号:");
+						}
+					}
+					break;
+                }
+				case 2: {
+					char name[20];
+					printf("请输入要修改的信息:\n");
+					printf("姓名:");//判断学号是否存在
+					gets(name);
+					strcpy(user->info->name, name);
+					printf("修改成功\n");
+					break;
+                }
+				case 3: {
+					char passwd[20];
+					printf("请输入要修改的信息:\n");
+					printf("密码:");//判断学号是否存在
+					gets(passwd);
+					strcpy(user->info->passwd, passwd);
+					printf("修改成功\n");
+					break;
+                }
+				case 4: {
+					char institute[30];
+					printf("请输入要修改的信息:\n");
+					printf("学院:");//判断学号是否存在
+					gets(institute);
+					strcpy(user->info->institute, institute);
+					printf("修改成功\n");
+					break;
+                }
+				case 5: {
+					char phoneNum[20];
+					printf("请输入要修改的信息:\n");
+					printf("学院:");//判断学号是否存在
+					gets(phoneNum);
+					strcpy(user->info->phoneNum, phoneNum);
+					printf("修改成功\n");
+					break;
+                }
+				case 6: {
+					char synopsis[100];
+					printf("请输入要修改的信息:\n");
+					printf("学院:");//判断学号是否存在
+					gets(synopsis);
+					strcpy(user->info->synopsis, synopsis);
+					printf("修改成功\n");
+					break;
+                }
+				default:
+					printf("输入信息错误,请重新输入\n");
+					printf("学号(0),角色号(1),姓名(2),密码(3),学院(4),电话号码(5),简介(6),-1表示退出\n");
+					break;
+
+			}
+			printf("请输入要进行修改的信息的序号:\n");
+			printf("学号(0),角色号(1),姓名(2),密码(3),学院(4),电话号码(5),简介(6),-1表示退出\n");
+		}
+		//将修改后的信息写入到文件中
+		//如果修改了name,则将原先name对应的id删除,然后写入新文件
+		//否则直接将信息写入
+		replaceInfo(preLink, user);
+	}
+	else
+		printf("该id号不存在\n");
+
+}
+
+void replaceInfo(userLink preInfo, userLink newInfo) {
+	int i;
+	userLink head = (userLink)malloc(sizeof(userList));
+	head->info = NULL;
+	head->next = NULL;
+	if (strcmp(preInfo->info->name, newInfo->info->name) == 0) {//名字未修改
+		i = getCorrectInsertIndex(preInfo->info->name);
+		newInfo->info->firstChild = NULL;
+		newInfo->next = NULL;
+		newInfo->flag = 0;
+		//创建用户信息链
+		readUserData(fileArr[i], head);
+		userLink q = head->next;
+		userLink pre = head;
+		while (q&&preInfo->info->id != q->info->id) {
+				pre = q;
+				q = q->next;
+		}
+		newInfo->next = q->next;
+		pre->next = newInfo;
+		free(q);
+		//写入信息
+		writeInfoToFile(fileArr[i], head->next);
+		freeUser(head);
+
+	}
+	else {
+		//找到之前信息进行删除
+		i = getCorrectInsertIndex(preInfo->info->name);
+		//创建用户信息链
+		readUserData(fileArr[i], head);
+		userLink q = head->next;
+		userLink pre = head;
+		while (q&&preInfo->info->id != q->info->id) {
+			pre = q;
+			q = q->next;
+		}
+        pre->next = q->next;
+		free(q);
+		//写入信息
+		writeInfoToFile(fileArr[i], head->next);
+		freeUser(head->next);
+		head->next = NULL;
+		//找到对应文件写入信息
+		i = getCorrectInsertIndex(newInfo->info->name);
+		//创建用户信息链
+		newInfo->info->firstChild = NULL;
+		newInfo->next = NULL;
+		newInfo->flag = 0;
+		//创建用户信息链
+		readUserData(fileArr[i], head);
+		//插入信息
+		insertToUserListByName(head, newInfo);
+		print(head);
+		//写入信息
+		writeInfoToFile(fileArr[i], head->next);
+		freeUser(head);
+	}
+
+}

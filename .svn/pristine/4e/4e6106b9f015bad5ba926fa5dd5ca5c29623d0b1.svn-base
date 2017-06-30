@@ -1,0 +1,18 @@
+//教务处操作
+void affairsCoursesSelect(){
+    char *menuArr[]={
+                    "教务处",
+                    "课程管理",//增删改查
+                    "用户管理",//增删改查，TODO:发消息
+                    "系统设置",
+                    "当前位置：首页"
+                };
+    int loop=1;
+    while( loop ){
+        switch( showMenu(menuArr, 5) ){
+
+            default: loop=0;
+        }
+    }
+}
+

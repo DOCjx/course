@@ -1,0 +1,39 @@
+
+void seachPlan(){
+    printf("培养方案查询");
+}
+void selectCourses(){
+    if( systemStatus ){
+        tip("还没到选课时间哦！");
+        return;
+    }
+
+}
+void seachTea(){}
+void seachStu(){}
+
+//学生进行选课
+void stuCoursesSelect(){
+    char *menuArr[]={
+                    "学生之家",
+                    "培养方案查询",
+                    "进行选课",
+                    "查询任课老师",
+                    "查询同学信息",
+                    "当前位置：首页"
+                };
+    int loop=1;
+    while( loop ){
+        switch( showMenu(menuArr, 6) ){
+            case 1: seachPlan();
+                    break;
+            case 2: selectCourses();break;
+            case 3: seachTea();break;
+            case 4: seachStu();break;
+            case -1: isLogout = 1; break;
+            default: loop=0;
+        }
+        //如果全局为注销则退出当前菜单直到首页
+        if( isLogout ) loop=0;
+    }
+}

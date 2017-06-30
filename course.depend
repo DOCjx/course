@@ -1,0 +1,88 @@
+# depslib dependency file v1.0
+1494474702 source:c:\users\µ¾¿Çer\desktop\cache\course\main.c
+	"heads/common.h"
+	"heads/stuCoursesSelect.h"
+	"heads/teaCoursesSelect.h"
+	"heads/affairsCoursesSelect.h"
+	"heads/admin.h"
+
+1494428370 c:\users\µ¾¿Çer\desktop\cache\course\heads\menu.h
+	<stdio.h>
+	<stdlib.h>
+	<time.h>
+	<conio.h>
+	<string.h>
+	<windows.h>
+
+1494474521 c:\users\µ¾¿Çer\desktop\cache\course\heads\common.h
+	<stdio.h>
+	<stdlib.h>
+	<time.h>
+	<conio.h>
+	<string.h>
+	<windows.h>
+
+1494428864 c:\users\µ¾¿Çer\desktop\cache\course\heads\course.h
+
+1494472032 c:\users\µ¾¿Çer\desktop\cache\course\heads\stucoursesselect.h
+
+1494474141 c:\users\µ¾¿Çer\desktop\cache\course\heads\teacoursesselect.h
+
+1494474129 c:\users\µ¾¿Çer\desktop\cache\course\heads\affairscoursesselect.h
+
+1494474787 c:\users\µ¾¿Çer\desktop\cache\course\heads\admin.h
+
+1495603007 source:c:\users\µ¾¿Çer\desktop\course\main.c
+	"heads/common.h"
+	"heads/stuCoursesSelect.h"
+	"heads/teaCoursesSelect.h"
+	"heads/affairsCoursesSelect.h"
+	"heads/admin.h"
+
+1495359823 c:\users\µ¾¿Çer\desktop\course\heads\common.h
+	<stdio.h>
+	<stdlib.h>
+	<time.h>
+	<conio.h>
+	<string.h>
+	<windows.h>
+	"struct.h"
+
+1495368448 c:\users\µ¾¿Çer\desktop\course\heads\struct.h
+
+1495298022 c:\users\µ¾¿Çer\desktop\course\heads\stucoursesselect.h
+
+1495368504 c:\users\µ¾¿Çer\desktop\course\heads\teacoursesselect.h
+
+1495936589 c:\users\µ¾¿Çer\desktop\course\heads\affairscoursesselect.h
+
+1494518973 c:\users\µ¾¿Çer\desktop\course\heads\admin.h
+
+1494502733 c:\users\µ¾¿Çer\desktop\course\heads\userinfosort.h
+
+1494664119 source:c:\users\ê»\desktop\structruedata\main.c
+	"heads/common.h"
+	"heads/stuCoursesSelect.h"
+	"heads/teaCoursesSelect.h"
+	"heads/affairsCoursesSelect.h"
+	"heads/admin.h"
+
+1494660192 c:\users\ê»\desktop\structruedata\heads\common.h
+	<stdio.h>
+	<stdlib.h>
+	<time.h>
+	<conio.h>
+	<string.h>
+	<windows.h>
+	"struct.h"
+
+1494660192 c:\users\ê»\desktop\structruedata\heads\struct.h
+
+1494660192 c:\users\ê»\desktop\structruedata\heads\stucoursesselect.h
+
+1494660192 c:\users\ê»\desktop\structruedata\heads\teacoursesselect.h
+
+1494729535 c:\users\ê»\desktop\structruedata\heads\affairscoursesselect.h
+
+1494660192 c:\users\ê»\desktop\structruedata\heads\admin.h
+

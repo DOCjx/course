@@ -1,0 +1,102 @@
+﻿#pragma once
+#define MAXSIZE 2000
+/**
+* @description:用户学习或者教授的课程结构体
+*/
+typedef struct courseNode
+{
+	int courseId;
+	char *time;
+	int counter;
+	struct courseNode* next;
+}courseList, *coursePoint;
+/**
+* @description:用户结构体
+*/
+typedef struct
+{
+	int id;
+	int roleId;
+	char name[20];
+	char passwd[20];
+	char institute[30];
+	char phoneNum[20];
+	char synopsis[100]; //摘要
+	coursePoint firstChild;
+
+}userNode;
+/*
+ԃۧʭ؝˵ķ:0ìѧʺ,1Oʦì2ڜmԱ
+*/
+/**
+* @description:顺序表存储读散列用户信息分片，在片内操作查找
+*/
+
+typedef struct userInfo
+{
+	userNode * info;
+	struct userInfo * next;
+	int flag;//用于学号快排
+	int flag1;//用于姓名快排
+}userList, *userLink;
+//用户信息链，用于存储从文件中读取来的用户信息
+
+
+/*
+以此结构作为用户姓名排序后的存储链
+*/
+typedef struct userSaveInfo {
+	char cName[2]; //姓名的首字母
+	userLink userHead;//用户链
+}userSaveList, *userSaveLink;
+
+
+/**
+* @description:课程的安排时间
+*/
+typedef struct courseTimeNode
+{
+	char time;
+	struct courseTimeNode* next;
+}courseTimeList, *courseTimePoint;
+/**
+* @description:课程的任课老师
+*/
+typedef struct courseUserLink
+{
+	int userId;
+	struct courseUserLink* next;
+}courseUserList, *courseUserPoint;
+/**
+* @description: 课程结构体
+*/
+typedef struct
+{
+	int classId;
+	char className[20];
+	char institute[20];
+	char synopsis[100];
+	courseUserPoint userFistChild;
+	courseTimePoint timeFistChild;
+}classNode;
+
+/**
+* @description:课程顺序表
+*/
+typedef struct
+{
+	classNode classes[MAXSIZE];
+	int length, root;//所含用户个数和根节点位置
+}classList;
+
+
+/**
+* @description:学院、专业结构体
+*/
+typedef struct institute_Node
+{
+	int instituteId;
+	char instituteName[20];
+	struct institute_Node* next;
+}instituteNode;
+typedef instituteNode* instituteList;

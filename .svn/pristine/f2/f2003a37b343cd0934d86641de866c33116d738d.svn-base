@@ -1,0 +1,120 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <conio.h>
+#include <string.h>
+#include <windows.h>
+
+int role;//用户角色
+int userNum;//用户id
+//conf
+int systemStatus;//当前系统状态
+int passLength;//密码长度
+int loginTimes;//用户尝试登入次数
+
+//日期结构体类型
+typedef struct datenode
+{
+    short year;
+    short month;
+    short day;
+}date;
+char *roleArr[]={
+                "学生",               //0
+                "任课老师",           //1
+                "教务处",             //2
+                "超管",             //3
+            };
+char *systemStatusArr[]={
+                "正常状态",    //0
+                "选课状态",    //1
+            };
+
+void showTitle(char *str);//显示页头
+void tip(char *str);//暂停提示
+void linex(int x);//到第x行
+int showMenu(char *arr[], int n);//输出菜单
+void showtime(int k);//显示欢迎页
+
+//显示页头
+void showTitle(char *str){
+    linex(6);
+    printf("\t\t\t%s",str);
+    printf("\t\t\t=================================\n");
+}
+
+//暂停提示
+void tip(char *str){
+    int i;
+    printf("%s",str);
+    for(i=0;i<5;i++){
+        printf(">");
+        Sleep(300);
+    }
+    for(i=0;i<6;i++){
+        printf(">");
+        Sleep(100);
+    }
+}
+//到第n行
+void linex(int x)
+{
+    int i;
+    for (i=0;i<x-1;i++)
+        putchar('\n');
+}
+
+/*
+    @函数名称：showMenu      入口参数：arr第一项为菜单名字的数组，n为数组长度
+    @函数功能：显示超市管理员菜单，返回用户选择
+*/
+int showMenu(char *arr[], int n)
+{
+    int c,i;
+    system("cls");
+    if( strcmp(arr[n-1],"") )printf("%s->%s",arr[n-1],arr[0]);
+    linex(5);
+    printf("\t\t\t  %s\n",arr[0]);
+    printf("\t\t\t=================================\n");
+    for(i=1; i<n-1; i++){
+        printf("\t\t\t  %d\t%s\t\t\n",i,arr[i]);
+    }
+    printf("\t\t\t  0\t注销\t\t\t\n");
+    printf("\t\t\t=================================\n");
+    printf("\t\t\t请输入选项[ ]\b\b");
+    scanf("%d",&c);
+    return c;
+}
+
+
+/*
+    @函数名称：showtime          入口参数：int k模式选择
+    @函数功能：显示时间欢迎
+*/
+void showtime(int k)
+{
+    time_t nowtime;
+    struct tm *t;
+    time(&nowtime);
+
+    t=localtime(&nowtime);
+    if (t->tm_hour>=5 && t->tm_hour<9)
+        printf("早上好！\n  ");
+    else
+           if (t->tm_hour>=9 && t->tm_hour<12)
+                  printf("上午好！\n  ");
+           else
+                   if (t->tm_hour>12 && t->tm_hour<18)
+                        printf("下午好！\n    ");
+                   else
+                        printf("晚上好！\n    ");
+
+    switch(k)
+    {
+        case 0: printf("  欢迎进入选课系统！");        //进入系统时调用showtime(0);
+            break;
+        case 1: printf("\t谢谢使用选课系统！\n");      //退出系统时调用showtime(0);
+                printf("\t当前时间: %s",  ctime(&nowtime));
+            break;
+    }
+}
